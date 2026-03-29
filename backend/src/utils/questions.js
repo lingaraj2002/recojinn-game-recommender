@@ -1,24 +1,8 @@
-const questions = [
-  {
-    key: "genre",
-    text: "Choose a genre:\n(action / adventure / racing / puzzle / sports)",
-    options: ["action", "adventure", "racing", "puzzle", "sports"],
-  },
-  {
-    key: "style",
-    text: "Casual or hardcore?",
-    options: ["casual", "hardcore"],
-  },
-  {
-    key: "mood",
-    text: "Your mood?\n(relax / competitive / story / explore)",
-    options: ["relax", "competitive", "story", "explore"],
-  },
-  {
-    key: "time",
-    text: "Play time?\n(short / long)",
-    options: ["short", "long"],
-  },
-];
+const questions = {
+  genre: "What genre are you looking for? (Action, RPG, Strategy, etc.)",
+  style: "Do you want a 'hardcore' challenge or a 'casual' experience?",
+  mood: "Are you feeling 'competitive' or 'relaxing' right now?",
+  time: "Do you have 'long' hours to play or just a 'short' break?",
+};
 
 module.exports = { questions };

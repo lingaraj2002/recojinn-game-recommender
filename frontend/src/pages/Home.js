@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Logo from "./assets/images/recojinn-logo.png";
+import Logo from "../assets/images/recojinn-logo.png";
 
 export default function Home() {
   return (
