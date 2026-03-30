@@ -5,11 +5,13 @@ import UserIcon from "../assets/images/recojinn-chat-user-icon.png";
 import BotIcon from "../assets/images/recojinn-chat-bot-icon.png";
 import BackIcon from "../assets/images/recojinn-back-icon.png";
 import { Link } from "react-router-dom";
+import GameDetailsPopup from "../components/GameDetailsPopup";
 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [answers, setAnswers] = useState({});
   const [typing, setTyping] = useState(false);
+  const [selectedGame, setSelectedGame] = useState(null);
 
   const messagesEndRef = useRef(null);
   const gameGridRef = useRef(null);
@@ -37,7 +39,7 @@ export default function Chat() {
 
   const startChat = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/chat", {
+      const res = await axios.post("http://localhost:5000/api/chat", {
         message: "",
         answers: {},
       });
@@ -55,7 +57,7 @@ export default function Chat() {
     setTyping(true);
 
     try {
-      const res = await axios.post("http://localhost:5000/chat", {
+      const res = await axios.post("http://localhost:5000/api/chat", {
         message: text,
         answers,
       });
@@ -80,9 +82,9 @@ export default function Chat() {
 
   return (
     <section className="h-screen flex items-center justify-center bg-[#240046] p-6">
-      <div className="h-full flex flex-col justify-between w-full max-w-[512px] bg-[#5A189A] p-6 rounded-tl-[48px] rounded-br-[48px]">
+      <div className="h-full flex flex-col justify-between w-full max-w-[512px] ">
         {/* Header */}
-        <div className="w-full flex items-center justify-start pb-4">
+        <div className="w-full flex items-center justify-start pb-6 mb-4 border-b border-[#E0AAFF]">
           <Link to="/" className="bg-[#E0AAFF] p-2 rounded-full mr-4">
             <img src={BackIcon} alt="Back" className="w-6 h-6" />
           </Link>
@@ -127,12 +129,25 @@ export default function Chat() {
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <h3 className="text-xs text-white font-bold truncate">
-                        {g.name}
-                      </h3>
+                      <div className="flex justify-between items-start">
+                        <h3 className="text-xs text-white font-bold truncate">
+                          {g.name}
+                        </h3>
+                        {g.isFree ? (
+                          <span className="text-green-600 text-sm">Free</span>
+                        ) : (
+                          <span className="text-red-600 text-sm">Paid</span>
+                        )}
+                      </div>
                       <p className="text-[10px] text-purple-200">
                         ⭐ {g.rating}
                       </p>
+                      <button
+                        className="mt-2 w-full bg-[#E0AAFF] text-purple-700 text-xs py-1 rounded-full hover:bg-[#9D4EDD] hover:text-white transition-colors"
+                        onClick={() => setSelectedGame(g)}
+                      >
+                        View Details
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -160,7 +175,7 @@ export default function Chat() {
         {/* Input Bar */}
         <div className="w-full flex items-center gap-4 pt-4">
           <input
-            className="px-6 py-3 text-lg text-white bg-[#E0AAFF] placeholder:text-purple-700 flex-1 rounded-full outline-none focus:ring-2 focus:ring-white/50"
+            className="px-6 py-3 text-lg text-[#240046] bg-[#E0AAFF] placeholder:text-purple-700 flex-1 rounded-full outline-none focus:ring-2 focus:ring-white/50"
             placeholder="Type your answer..."
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -174,6 +189,12 @@ export default function Chat() {
           </button>
         </div>
       </div>
+      {selectedGame && (
+        <GameDetailsPopup
+          game={selectedGame}
+          onClose={() => setSelectedGame(null)}
+        />
+      )}
     </section>
   );
 }

@@ -1,0 +1,76 @@
+// @ts-nocheck
+const { extractKeywords, mapAnswers } = require("../utils/mapper");
+const { questions } = require("../utils/nlpConfig");
+const getGames = require("../services/gameData");
+const net = require("../model/brain");
+
+const handleChat = async (req, res) => {
+  const { message, answers = {} } = req.body;
+
+  if (
+    !message &&
+    Object.values(answers).every((v) => v === null || v === undefined)
+  ) {
+    return res.json({
+      reply: "🎮 Welcome! Game AI Here. Tell me what you're looking for!",
+      answers: { genre: null, style: null, mood: null, time: null },
+      step: 1,
+    });
+  }
+
+  const extracted = extractKeywords(message || "");
+
+  const currentAnswers = {
+    genre: extracted.genre || answers.genre || null,
+    style: extracted.style || answers.style || null,
+    mood: extracted.mood || answers.mood || null,
+    time: extracted.time || answers.time || null,
+  };
+
+  const REQUIRED_FIELDS = ["genre", "style", "mood", "time"];
+
+  const missingField = REQUIRED_FIELDS.find((field) => !currentAnswers[field]);
+
+  // detect invalid (no useful extraction)
+  const isInvalidInput = message && Object.keys(extracted).length === 0;
+
+  // optional retry count
+  let retryCount = req.body.retryCount || 0;
+
+  if (missingField) {
+    const useFallback = isInvalidInput || retryCount > 0;
+
+    return res.json({
+      reply: useFallback
+        ? `${questions[missingField].primary}\n👉 ${questions[missingField].fallback}`
+        : questions[missingField].primary,
+
+      answers: currentAnswers,
+      step: REQUIRED_FIELDS.indexOf(missingField) + 2,
+      retryCount: retryCount + 1, // 🔥 important
+    });
+  }
+
+  try {
+    const vector = mapAnswers(currentAnswers);
+    const result = net.run(vector);
+
+    console.log("AI Output:", result);
+
+    const games = await getGames(currentAnswers.genre);
+
+    return res.json({
+      reply: `🎯 I've analyzed your preferences! Here are the best ${currentAnswers.genre} games for you:`,
+      games,
+      answers: {},
+      step: 0,
+    });
+  } catch (error) {
+    console.error("Processing Error:", error);
+    return res.status(500).json({
+      reply: "Sorry, I ran into an error finding games.",
+    });
+  }
+};
+
+module.exports = handleChat;

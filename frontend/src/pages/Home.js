@@ -3,8 +3,11 @@ import Logo from "../assets/images/recojinn-logo.png";
 
 export default function Home() {
   return (
-    <section className="h-screen flex items-center justify-center bg-[#240046]">
-      <div className="flex items-center justify-center gap-6 shadow-[inset_0_0_24px_#E0AAFF] rounded-tl-[48px] rounded-br-[48px] p-6">
+    <section
+      className="h-screen flex items-center justify-center bg-[radial-gradient(circle_at_center,#10002B,#240046,#3C096C,#5A189A,#7B2CBF,#9D4EDD,#C77DFF,#E0AAFF)]
+bg-400 animate-radial"
+    >
+      <div className="flex items-center justify-center gap-6">
         <div className="w-[368px]">
           <img
             src={Logo}
